@@ -1,0 +1,25 @@
+[package]
+name = "bevy-space-program"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+avian3d = { version = "0.5.0", features = ["enhanced-determinism"] }
+bevy = { version = "0.18.1", features = ["3d"], default-features = false }
+bevy-steamworks = "0.16.0"
+big_space = { version = "0.12.0", features = ["camera", "debug"] }
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[features]
+default = []
+dev = ["bevy/dynamic_linking"]
