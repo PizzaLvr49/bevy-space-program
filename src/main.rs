@@ -42,6 +42,7 @@ fn main() {
     .add_plugins(PhysicsDebugPlugin)
     .add_systems(Startup, (test_steamworks, test_big_space))
     .add_systems(PostStartup, check_precision)
+    .insert_resource(Gravity::ZERO)
     .run();
 }
 
@@ -63,8 +64,8 @@ fn test_big_space(mut commands: Commands) {
         ));
 
         root.spawn_spatial((
-            Transform::from_xyz(0.0, 0.0, 0.0),
-            CellCoord::new(0, 0, 3),
+            Transform::from_xyz(1_000_000.0, 0.0, 0.0),
+            CellCoord::new(2, 0, 0),
             Name::new("Test Object"),
         ));
     });
