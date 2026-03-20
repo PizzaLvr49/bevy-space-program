@@ -18,7 +18,7 @@ fn main() {
             info!("Steamworks initialized");
         }
         Err(error) => {
-            info!("Steamworks failed to initilize, {error:?}, running standalone",);
+            warn!("Steamworks failed to initilize, {error:?}, running standalone",);
         }
     }
 
@@ -39,7 +39,9 @@ fn main() {
     )
     .add_plugins(BigSpaceDefaultPlugins)
     .add_plugins(PhysicsPlugins::default())
-    .add_systems(Startup, test_steamworks)
+    .add_plugins(PhysicsDebugPlugin)
+    .add_systems(Startup, (test_steamworks, test_big_space))
+    .add_systems(PostStartup, check_precision)
     .run();
 }
 
@@ -49,4 +51,28 @@ fn test_steamworks(client: If<Res<Client>>) {
         client.friends().name(),
         client.user().steam_id(),
     );
+}
+
+fn test_big_space(mut commands: Commands) {
+    commands.spawn_big_space(Grid::new(10_000.0, 0.01), |root| {
+        root.spawn_spatial((
+            Camera3d::default(),
+            Transform::from_xyz(0.0, 0.0, 0.0),
+            FloatingOrigin,
+            Name::new("Camera"),
+        ));
+
+        root.spawn_spatial((
+            Transform::from_xyz(0.0, 0.0, 0.0),
+            CellCoord::new(0, 0, 3),
+            Name::new("Test Object"),
+        ));
+    });
+}
+
+fn check_precision(grid: Single<&Grid>, objects: Query<(&CellCoord, &Transform, &Name)>) {
+    for (cell, transform, name) in &objects {
+        let pos = grid.grid_position_double(cell, transform);
+        info!("{} is at world pos: {:?}", name, pos);
+    }
 }

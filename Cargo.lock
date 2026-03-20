@@ -373,7 +373,6 @@ dependencies = [
  "disqualified",
  "glam_matrix_extras",
  "itertools 0.14.0",
- "libm",
  "obvhs",
  "parry3d",
  "parry3d-f64",
@@ -1763,6 +1762,7 @@ dependencies = [
  "bevy_app",
  "bevy_color",
  "bevy_ecs",
+ "bevy_gizmos",
  "bevy_input",
  "bevy_log",
  "bevy_math",
@@ -2908,7 +2908,6 @@ checksum = "c4664468a60479272b880a8bfc00ad2915229b93d2b2d585556fb33f9ba80e72"
 dependencies = [
  "bevy_reflect",
  "glam 0.30.10",
- "libm",
 ]
 
 [[package]]
@@ -4121,7 +4120,6 @@ dependencies = [
  "foldhash 0.2.0",
  "glamx",
  "hashbrown 0.16.1",
- "indexmap",
  "log",
  "num-derive",
  "num-traits",
@@ -4151,7 +4149,6 @@ dependencies = [
  "foldhash 0.2.0",
  "glamx",
  "hashbrown 0.16.1",
- "indexmap",
  "log",
  "num-derive",
  "num-traits",
@@ -4852,7 +4849,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c99284beb21666094ba2b75bbceda012e610f5479dfcc2d6e2426f53197ffd95"
 dependencies = [
  "approx",
- "libm",
  "num-complex",
  "num-traits",
  "paste",

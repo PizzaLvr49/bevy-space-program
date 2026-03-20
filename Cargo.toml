@@ -4,10 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-avian3d = { version = "0.6.0", features = ["enhanced-determinism"] }
+avian3d = { version = "0.6.0", features = [
+    "parry-f64",
+    "3d",
+    "xpbd_joints",
+    "parallel",
+    "debug-plugin",
+], default-features = false }
 bevy = { version = "0.18.1", features = ["3d"], default-features = false }
 bevy-steamworks = "0.16.0"
-big_space = "0.12.0"
+big_space = { version = "0.12.0", features = ["i64", "debug"] }
 
 [profile.release]
 opt-level = 3
@@ -22,4 +28,4 @@ opt-level = 3
 
 [features]
 default = []
-dev = ["bevy/dynamic_linking"]
+dev = ["bevy/dynamic_linking", "bevy/debug"]
