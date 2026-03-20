@@ -7,7 +7,7 @@ edition = "2024"
 avian3d = { version = "0.6.0", features = ["enhanced-determinism"] }
 bevy = { version = "0.18.1", features = ["3d"], default-features = false }
 bevy-steamworks = "0.16.0"
-big_space = { version = "0.12.0", features = ["camera"] }
+big_space = "0.12.0"
 
 [profile.release]
 opt-level = 3
