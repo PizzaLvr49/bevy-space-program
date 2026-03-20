@@ -4,7 +4,7 @@ use bevy::{
     prelude::*,
     window::{MonitorSelection, PresentMode, WindowMode},
 };
-use bevy_steamworks::{Client, FriendFlags, SteamworksPlugin};
+use bevy_steamworks::{Client, SteamworksPlugin};
 use big_space::prelude::*;
 
 fn main() {
@@ -45,7 +45,8 @@ fn main() {
 
 fn test_steamworks(client: If<Res<Client>>) {
     info!(
-        "Friends: {}",
-        client.friends().get_friends(FriendFlags::IMMEDIATE).len()
+        "Player: {}, id: {:?}",
+        client.friends().name(),
+        client.user().steam_id(),
     );
 }
