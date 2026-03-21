@@ -1,16 +1,29 @@
+#![cfg_attr(not(feature = "dev"), windows_subsystem = "windows")]
+
 use avian3d::prelude::*;
 use bevy::{
-    log::LogPlugin,
+    log::{Level, LogPlugin},
     prelude::*,
-    window::{MonitorSelection, PresentMode, WindowMode},
+    window::{PresentMode, WindowMode},
 };
 use bevy_steamworks::{Client, SteamworksPlugin};
 use big_space::prelude::*;
+use semver::Version;
+use std::sync::LazyLock;
 
-fn main() {
+mod log;
+
+pub static GAME_VERSION: LazyLock<Version> = LazyLock::new(|| Version::parse("0.0.0").unwrap());
+
+fn main() -> AppExit {
     let mut app = App::new();
 
-    app.add_plugins(LogPlugin::default());
+    app.add_plugins(LogPlugin {
+        level: Level::DEBUG,
+        custom_layer: log::custom_layer,
+        fmt_layer: log::fmt_layer,
+        ..default()
+    });
 
     match SteamworksPlugin::init() {
         Ok(steam_plugin) => {
@@ -18,7 +31,7 @@ fn main() {
             info!("Steamworks initialized");
         }
         Err(error) => {
-            warn!("Steamworks failed to initilize, {error:?}, running standalone",);
+            warn!("Steamworks failed to initialize, {error:?}, running standalone");
         }
     }
 
@@ -42,8 +55,9 @@ fn main() {
     .add_plugins(PhysicsDebugPlugin)
     .add_systems(Startup, (test_steamworks, test_big_space))
     .add_systems(PostStartup, check_precision)
-    .insert_resource(Gravity::ZERO)
-    .run();
+    .insert_resource(Gravity::ZERO);
+
+    app.run()
 }
 
 fn test_steamworks(client: If<Res<Client>>) {
@@ -64,7 +78,7 @@ fn test_big_space(mut commands: Commands) {
         ));
 
         root.spawn_spatial((
-            Transform::from_xyz(1_000_000.0, 0.0, 0.0),
+            Transform::from_xyz(100_000.0, 0.0, 0.0),
             CellCoord::new(2, 0, 0),
             Name::new("Test Object"),
         ));
