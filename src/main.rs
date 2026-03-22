@@ -11,7 +11,12 @@ use big_space::prelude::*;
 use semver::Version;
 use std::sync::LazyLock;
 
+use space::{CelestialBody, Orbit};
+
+use keplerian_sim::{Orbit as KeplerOrbit, OrbitTrait};
+
 mod log;
+mod space;
 
 pub static GAME_VERSION: LazyLock<Version> = LazyLock::new(|| Version::parse("0.0.0").unwrap());
 
@@ -54,7 +59,7 @@ fn main() -> AppExit {
     .add_plugins(PhysicsPlugins::default())
     .add_plugins(PhysicsDebugPlugin)
     .add_systems(Startup, (test_steamworks, test_big_space))
-    .add_systems(PostStartup, check_precision)
+    .add_systems(Update, log_orbit)
     .insert_resource(Gravity::ZERO);
 
     app.run()
@@ -71,23 +76,22 @@ fn test_steamworks(client: If<Res<Client>>) {
 fn test_big_space(mut commands: Commands) {
     commands.spawn_big_space(Grid::new(10_000.0, 0.01), |root| {
         root.spawn_spatial((
-            Camera3d::default(),
-            Transform::from_xyz(0.0, 0.0, 0.0),
             FloatingOrigin,
-            Name::new("Camera"),
+            Orbit::from(KeplerOrbit::new_flat_circular(3_000.0, 0.0, 10_000.0)),
+            Name::new("Orbiter"),
         ));
 
-        root.spawn_spatial((
-            Transform::from_xyz(100_000.0, 0.0, 0.0),
-            CellCoord::new(2, 0, 0),
-            Name::new("Test Object"),
-        ));
+        root.spawn_spatial((CelestialBody::new(10_000.0), Name::new("Test Object")));
     });
 }
 
-fn check_precision(grid: Single<&Grid>, objects: Query<(&CellCoord, &Transform, &Name)>) {
-    for (cell, transform, name) in &objects {
-        let pos = grid.grid_position_double(cell, transform);
-        info!("{name} is at world pos: {pos:?}");
+fn log_orbit(time: Res<Time>, orbits: Query<(&Orbit, &Name)>) {
+    for (orbit, name) in &orbits {
+        let pos = orbit.0.get_position_at_time(time.elapsed_secs_f64());
+        let vel = orbit
+            .0
+            .get_velocity_at_time(time.elapsed_secs_f64())
+            .length();
+        info!("Orbit: {name} is at: {pos:.2?}, with vel: {vel:.4?}");
     }
 }

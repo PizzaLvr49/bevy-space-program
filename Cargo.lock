@@ -419,6 +419,7 @@ dependencies = [
  "big_space",
  "chrono",
  "flate2",
+ "keplerian_sim",
  "log",
  "semver",
  "tracing",
@@ -3361,6 +3362,16 @@ checksum = "b49715b7073f385ba4bc528e5747d02e66cb39c6146efb66b781f131f0fb399c"
 dependencies = [
  "once_cell",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "keplerian_sim"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dc46186270a80194638cbe1c89867ee366f6b9fe0b0b9d7c8be2f572acea97e"
+dependencies = [
+ "glam 0.30.10",
+ "libm",
 ]
 
 [[package]]
