@@ -11,9 +11,9 @@ use big_space::prelude::*;
 use semver::Version;
 use std::sync::LazyLock;
 
-use space::{CelestialBody, Orbit};
+use space::{CelestialBody, KeplerOrbit};
 
-use keplerian_sim::{Orbit as KeplerOrbit, OrbitTrait};
+use keplerian_sim::{Orbit, OrbitTrait};
 
 mod log;
 mod space;
@@ -77,7 +77,7 @@ fn test_big_space(mut commands: Commands) {
     commands.spawn_big_space(Grid::new(10_000.0, 0.01), |root| {
         root.spawn_spatial((
             FloatingOrigin,
-            Orbit::from(KeplerOrbit::new_flat_circular(3_000.0, 0.0, 10_000.0)),
+            KeplerOrbit::from(Orbit::new_flat_circular(3_000.0, 0.0, 10_000.0)),
             Name::new("Orbiter"),
         ));
 
@@ -85,7 +85,7 @@ fn test_big_space(mut commands: Commands) {
     });
 }
 
-fn log_orbit(time: Res<Time>, orbits: Query<(&Orbit, &Name)>) {
+fn log_orbit(time: Res<Time>, orbits: Query<(&KeplerOrbit, &Name)>) {
     for (orbit, name) in &orbits {
         let pos = orbit.0.get_position_at_time(time.elapsed_secs_f64());
         let vel = orbit
