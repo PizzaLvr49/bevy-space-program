@@ -19,7 +19,7 @@ fn rotate_logs() -> std::io::Result<()> {
     let latest = Path::new("logs/latest.log");
     if latest.exists() {
         let timestamp = Local::now().format("%Y-%m-%d_%H-%M-%S");
-        let archive = format!("logs/{}.log.gz", timestamp);
+        let archive = format!("logs/{timestamp}.log.gz");
 
         let mut src = File::open(latest)?;
         let mut dst = GzEncoder::new(File::create(&archive)?, Compression::default());

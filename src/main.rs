@@ -88,6 +88,6 @@ fn test_big_space(mut commands: Commands) {
 fn check_precision(grid: Single<&Grid>, objects: Query<(&CellCoord, &Transform, &Name)>) {
     for (cell, transform, name) in &objects {
         let pos = grid.grid_position_double(cell, transform);
-        info!("{} is at world pos: {:?}", name, pos);
+        info!("{name} is at world pos: {pos:?}");
     }
 }

@@ -419,7 +419,9 @@ dependencies = [
  "big_space",
  "chrono",
  "flate2",
+ "log",
  "semver",
+ "tracing",
  "tracing-appender",
 ]
 
