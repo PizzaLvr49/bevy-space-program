@@ -6,10 +6,7 @@
 mod math;
 
 use bevy::prelude::*;
-use bevy_egui::{
-    EguiContexts, EguiPlugin, EguiPrimaryContextPass,
-    egui::{self, FontId, RichText},
-};
+use bevy_egui::{EguiContexts, EguiPlugin, EguiPrimaryContextPass, egui};
 
 fn main() -> AppExit {
     App::new()
@@ -19,6 +16,9 @@ fn main() -> AppExit {
         .add_systems(EguiPrimaryContextPass, ui_example_system)
         .insert_resource(UiState {
             is_window_open: true,
+            apoapsis: 120.0,
+            periapsis: 80.0,
+            eccentricity: 0.17,
         })
         .run()
 }
@@ -26,6 +26,9 @@ fn main() -> AppExit {
 #[derive(Resource)]
 struct UiState {
     is_window_open: bool,
+    apoapsis: f64,
+    periapsis: f64,
+    eccentricity: f64,
 }
 
 fn setup_camera_system(mut commands: Commands) {
@@ -33,17 +36,67 @@ fn setup_camera_system(mut commands: Commands) {
 }
 
 fn ui_example_system(mut contexts: EguiContexts, mut ui_state: ResMut<UiState>) -> Result {
-    egui::Window::new("Hello")
+    let UiState {
+        is_window_open,
+        apoapsis,
+        periapsis,
+        eccentricity,
+    } = &mut *ui_state;
+
+    egui::SidePanel::left("toolbar")
+        .resizable(false)
+        .default_width(140.0)
+        .show(contexts.ctx_mut()?, |ui| {
+            ui.heading("Widgets");
+            ui.separator();
+
+            ui.toggle_value(is_window_open, "Orbit");
+        });
+
+    egui::Window::new("Orbit Widget")
         .vscroll(true)
-        .open(&mut ui_state.is_window_open)
+        .open(is_window_open)
         .show(contexts.ctx_mut()?, |ui| {
             ui.heading("Orbit");
 
             ui.separator();
 
-            ui.label(RichText::new("Apoapsis: 120km").font(FontId::monospace(14.0)));
-            ui.label(RichText::new("Periapsis: 80km").font(FontId::monospace(14.0)));
-            ui.label(RichText::new("Eccentricity: 0.17").font(FontId::monospace(14.0)));
+            ui.horizontal(|ui| {
+                ui.label("Apoapsis:");
+                ui.add(
+                    egui::DragValue::new(apoapsis)
+                        .range(0.0..=f64::INFINITY)
+                        .suffix(" km"),
+                );
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Periapsis:");
+                ui.add(
+                    egui::DragValue::new(periapsis)
+                        .range(0.0..=f64::INFINITY)
+                        .suffix(" km"),
+                );
+            });
+
+            ui.horizontal(|ui| {
+                ui.label("Eccentricity:");
+                ui.add(
+                    egui::DragValue::new(eccentricity)
+                        .speed(0.01)
+                        .range(0.0..=10.0),
+                );
+            });
+
+            ui.separator();
+
+            ui.horizontal(|ui| {
+                ui.label("Calculations");
+                if ui.button("Calculate Something").clicked() {
+                    info!("Calculating Something");
+                }
+            });
         });
+
     Ok(())
 }
