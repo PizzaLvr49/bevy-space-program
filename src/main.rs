@@ -53,10 +53,13 @@ fn ui_example_system(mut contexts: EguiContexts, mut ui_state: ResMut<UiState>) 
             ui.toggle_value(is_window_open, "Orbit");
         });
 
+    let ctx = contexts.ctx_mut()?;
+
     egui::Window::new("Orbit Widget")
+        .constrain_to(ctx.available_rect())
         .vscroll(true)
         .open(is_window_open)
-        .show(contexts.ctx_mut()?, |ui| {
+        .show(ctx, |ui| {
             ui.heading("Orbit");
 
             ui.separator();
