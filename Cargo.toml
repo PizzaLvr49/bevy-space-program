@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-avian3d = { version = "0.6.0", features = [
+avian3d = { version = "0.6.1", features = [
     "parry-f64",
     "3d",
     "xpbd_joints",
@@ -20,7 +20,8 @@ semver = "1.0.27"
 tracing-appender = "0.2.4"
 tracing = { version = "*", features = ["max_level_debug"] }
 log = { version = "*", features = ["max_level_debug"] }
-keplerian_sim = "0.7.3"
+
+bevy_egui = "0.39.1"
 
 [profile.release]
 opt-level = 3
