@@ -21,8 +21,6 @@ tracing-appender = "0.2.4"
 tracing = { version = "*", features = ["max_level_debug"] }
 log = { version = "*", features = ["max_level_debug"] }
 
-bevy_egui = "0.39.1"
-
 [profile.release]
 opt-level = 3
 debug = false
