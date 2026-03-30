@@ -421,6 +421,7 @@ dependencies = [
  "flate2",
  "log",
  "semver",
+ "slotmap",
  "tracing",
  "tracing-appender",
 ]

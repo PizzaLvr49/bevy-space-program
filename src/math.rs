@@ -85,6 +85,12 @@ fn hyperbolic_anomaly_to_true_anomaly(hyperbolic_anomaly: f64, eccentricity: f64
 }
 
 #[derive(Debug, Clone, Copy)]
+pub struct StateVectors {
+    position_vector: DVec3,
+    velocity_vector: DVec3,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct KeplerOrbit {
     pub standard_gravitational_parameter: f64,
     pub semi_major_axis: f64,
@@ -98,8 +104,8 @@ pub struct KeplerOrbit {
 
 impl KeplerOrbit {
     #[must_use]
-    pub fn from_state(position: DVec3, velocity: DVec3, mu: f64, epoch: f64) -> Self {
-        let (sma, ecc, inc, lan, aop, m0) = cartesian_to_kepler(position, velocity, mu);
+    pub fn from_state(state_vectors: StateVectors, mu: f64, epoch: f64) -> Self {
+        let (sma, ecc, inc, lan, aop, m0) = cartesian_to_kepler(state_vectors, mu);
         KeplerOrbit {
             standard_gravitational_parameter: mu,
             semi_major_axis: sma,
@@ -143,11 +149,12 @@ impl KeplerOrbit {
     }
 }
 
-fn cartesian_to_kepler(
-    position_vector: DVec3,
-    velocity_vector: DVec3,
-    mu: f64,
-) -> (f64, f64, f64, f64, f64, f64) {
+fn cartesian_to_kepler(state_vectors: StateVectors, mu: f64) -> (f64, f64, f64, f64, f64, f64) {
+    let StateVectors {
+        position_vector,
+        velocity_vector,
+    } = state_vectors;
+
     let radius_magnitude = position_vector.length();
     let velocity_squared = velocity_vector.length_squared();
 
@@ -387,12 +394,11 @@ pub fn build_trajectory(
 
     for _ in 0..=max_patches {
         let primary_body = &bodies[current_primary_index];
-        let orbit = KeplerOrbit::from_state(
-            current_position - primary_body.position,
-            current_velocity - primary_body.velocity,
-            primary_body.mu(),
-            current_time,
-        );
+        let state_vectors = StateVectors {
+            position_vector: current_position - primary_body.position,
+            velocity_vector: current_velocity - primary_body.velocity,
+        };
+        let orbit = KeplerOrbit::from_state(state_vectors, primary_body.mu(), current_time);
 
         let (position_start, velocity_start) = orbit.state_at(current_time);
         if !position_start.is_finite() {
