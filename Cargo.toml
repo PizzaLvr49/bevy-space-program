@@ -53,3 +53,7 @@ bevy_egui = "0.39.1"
 [features]
 default = []
 dev = ["bevy/dynamic_linking", "bevy/debug"]
+
+[lints.clippy]
+too_many_arguments = "allow"
+type_complexity = "allow"

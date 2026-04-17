@@ -14,10 +14,8 @@ use bevy_steamworks::SteamworksPlugin;
 use big_space::prelude::*;
 use tracing::Level;
 
-use crate::{
-    assembly::{spawn_tank, tank_ui, update_tank},
-    editor_camera::EditorCameraPlugin,
-};
+use assembly::{debug_visual_tree, spawn_tank, tank_ui, update_tank};
+use editor_camera::EditorCameraPlugin;
 
 fn main() -> AppExit {
     let mut app = App::new();
@@ -53,7 +51,7 @@ fn main() -> AppExit {
     .add_plugins(EguiPlugin::default())
     .add_systems(Startup, spawn_tank)
     .add_systems(Update, update_tank)
-    .add_systems(EguiPrimaryContextPass, tank_ui)
+    .add_systems(EguiPrimaryContextPass, (tank_ui, debug_visual_tree))
     .add_plugins(EditorCameraPlugin)
     .run()
 }
