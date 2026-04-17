@@ -1,5 +1,4 @@
 [workspace]
-# members = ["crates/*"]
 resolver = "3"
 
 [workspace.dependencies]
@@ -10,12 +9,12 @@ avian3d = { version = "0.6.1", features = [
     "parallel",
     "debug-plugin",
 ], default-features = false }
-bevy = { version = "0.18.1", features = ["3d"], default-features = false }
+bevy = { version = "0.18.1", features = ["3d", "ui"], default-features = false }
 bevy-steamworks = "0.16.0"
 big_space = { version = "0.12.0", features = ["i64", "debug"] }
 chrono = "0.4.44"
 flate2 = "1.1.9"
-semver = "1.0.27"
+semver = "1.0.28"
 tracing-appender = "0.2.4"
 tracing = { version = "*", features = ["max_level_debug"] }
 log = { version = "*", features = ["max_level_debug"] }
@@ -49,6 +48,7 @@ tracing-appender.workspace = true
 tracing.workspace = true
 log.workspace = true
 slotmap.workspace = true
+bevy_egui = "0.39.1"
 
 [features]
 default = []

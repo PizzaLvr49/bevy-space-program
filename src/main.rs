@@ -1,3 +1,5 @@
+mod assembly;
+mod editor_camera;
 mod log;
 mod math;
 
@@ -7,9 +9,15 @@ use bevy::{
     prelude::*,
     window::{PresentMode, WindowMode},
 };
+use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
 use bevy_steamworks::SteamworksPlugin;
 use big_space::prelude::*;
 use tracing::Level;
+
+use crate::{
+    assembly::{spawn_tank, tank_ui, update_tank},
+    editor_camera::EditorCameraPlugin,
+};
 
 fn main() -> AppExit {
     let mut app = App::new();
@@ -39,7 +47,13 @@ fn main() -> AppExit {
             .disable::<LogPlugin>()
             .disable::<TransformPlugin>(),
     )
+    .add_plugins(MeshPickingPlugin)
     .add_plugins(PhysicsPlugins::default())
     .add_plugins(BigSpaceDefaultPlugins)
+    .add_plugins(EguiPlugin::default())
+    .add_systems(Startup, spawn_tank)
+    .add_systems(Update, update_tank)
+    .add_systems(EguiPrimaryContextPass, tank_ui)
+    .add_plugins(EditorCameraPlugin)
     .run()
 }
