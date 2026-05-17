@@ -440,7 +440,7 @@ pub fn debug_visual_tree(
         for root in roots.iter() {
             draw_node_recursive(
                 root,
-                start_pos + egui::vec2(0.0, y_offset),
+                start_pos,
                 0,
                 &mut y_offset,
                 &painter,
@@ -448,13 +448,14 @@ pub fn debug_visual_tree(
                 &children_query,
                 &names,
             );
+            y_offset += 40.0;
         }
     });
 }
 
 fn draw_node_recursive(
     entity: Entity,
-    pos: egui::Pos2,
+    start_pos: egui::Pos2,
     depth: usize,
     y_accumulator: &mut f32,
     painter: &egui::Painter,
@@ -462,10 +463,56 @@ fn draw_node_recursive(
     children_query: &Query<&Children, With<FuelTank>>,
     names: &Query<&Name>,
 ) {
-    let x_step = 120.0;
+    let x_step = 140.0;
     let y_step = 60.0;
-    let current_pos = egui::pos2(pos.x + (depth as f32 * x_step), pos.y + *y_accumulator);
+
+    let mut child_positions = Vec::new();
+    if let Ok(children) = children_query.get(entity) {
+        for child in children.iter() {
+            draw_node_recursive(
+                child,
+                start_pos,
+                depth + 1,
+                y_accumulator,
+                painter,
+                positions,
+                children_query,
+                names,
+            );
+            if let Some(&child_pos) = positions.get(&child) {
+                child_positions.push(child_pos);
+            }
+        }
+    }
+
+    let current_pos = if child_positions.is_empty() {
+        let y = *y_accumulator;
+        *y_accumulator += y_step;
+        egui::pos2(start_pos.x + (depth as f32 * x_step), start_pos.y + y)
+    } else {
+        let first_y = child_positions.first().unwrap().y;
+        let last_y = child_positions.last().unwrap().y;
+        egui::pos2(
+            start_pos.x + (depth as f32 * x_step),
+            (first_y + last_y) / 2.0,
+        )
+    };
+
     positions.insert(entity, current_pos);
+
+    if let Ok(children) = children_query.get(entity) {
+        for child in children.iter() {
+            if let Some(&child_pos) = positions.get(&child) {
+                painter.line_segment(
+                    [
+                        current_pos + egui::vec2(20.0, 0.0),
+                        child_pos - egui::vec2(20.0, 0.0),
+                    ],
+                    egui::Stroke::new(2.0f32, egui::Color32::GRAY),
+                );
+            }
+        }
+    }
 
     let label = names.get(entity).map(|n| n.as_str()).unwrap_or("Entity");
     let color = if depth == 0 {
@@ -483,35 +530,7 @@ fn draw_node_recursive(
         egui::FontId::proportional(12.0),
         egui::Color32::WHITE,
     );
-
-    if let Ok(children) = children_query.get(entity) {
-        let parent_pos = current_pos;
-        for child in children.iter() {
-            draw_node_recursive(
-                child,
-                pos,
-                depth + 1,
-                y_accumulator,
-                painter,
-                positions,
-                children_query,
-                names,
-            );
-
-            if let Some(&child_pos) = positions.get(&child) {
-                painter.line_segment(
-                    [
-                        parent_pos + egui::vec2(20.0, 0.0),
-                        child_pos - egui::vec2(20.0, 0.0),
-                    ],
-                    egui::Stroke::new(2.0f32, egui::Color32::GRAY),
-                );
-            }
-            *y_accumulator += y_step;
-        }
-    }
 }
-
 use bevy::ecs::system::ParamSet;
 
 pub fn update_tank(
