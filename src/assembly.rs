@@ -131,7 +131,7 @@ fn on_drag_end(
     commands.entity(entity).remove::<DragState>();
 
     if let Ok(target) = snap.get(entity) {
-        if let Ok(mut transform) = transforms.get_mut(entity) {
+        if let Ok(mut transform) = transforms.get_mut(target.child_entity) {
             transform.translation = target.local_offset;
         }
 
@@ -442,7 +442,7 @@ fn draw_node_recursive(
     };
 
     painter.circle_filled(current_pos, 20.0, egui::Color32::from_black_alpha(150));
-    painter.circle_stroke(current_pos, 20.0, egui::Stroke::new(2.0, color));
+    painter.circle_stroke(current_pos, 20.0, egui::Stroke::new(2.0f32, color));
     painter.text(
         current_pos,
         egui::Align2::CENTER_CENTER,
@@ -471,7 +471,7 @@ fn draw_node_recursive(
                         parent_pos + egui::vec2(20.0, 0.0),
                         child_pos - egui::vec2(20.0, 0.0),
                     ],
-                    egui::Stroke::new(2.0, egui::Color32::GRAY),
+                    egui::Stroke::new(2.0f32, egui::Color32::GRAY),
                 );
             }
             *y_accumulator += y_step;
