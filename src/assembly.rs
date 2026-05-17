@@ -23,9 +23,15 @@ pub struct FuelTank {
     radius: f32,
 }
 
+#[derive(Clone, Copy)]
+pub struct AttachPoint {
+    pub position: Vec3,
+    pub normal: Vec3,
+}
+
 #[derive(Component)]
 pub struct RocketPart {
-    attach_points: Vec<Vec3>,
+    pub attach_points: Vec<AttachPoint>,
 }
 
 #[derive(Component)]
@@ -217,13 +223,15 @@ fn on_drag(
             let offset_from_root = global.translation() - root_global;
 
             for (i, ap) in part.attach_points.iter().enumerate() {
-                let used = attached
+                let parent_point_used = attached
                     .iter()
                     .any(|a| a.parent == *e && a.parent_point == i);
 
-                if !used {
-                    let local = offset_from_root + *ap;
-                    subassembly_points.push((*e, i, local));
+                let child_point_used = attached.get(*e).is_ok_and(|a| a.child_point == i);
+
+                if !parent_point_used && !child_point_used {
+                    let local = offset_from_root + ap.position;
+                    subassembly_points.push((*e, i, local, ap.normal));
                 }
             }
         }
@@ -253,18 +261,34 @@ fn on_drag(
 
         let other_world = other_global.translation();
 
-        for (own_entity, own_i, local) in &subassembly_points {
+        for (own_entity, own_i, local, own_normal) in &subassembly_points {
             let own_world = next + *local;
 
-            for (other_i, &other_ap) in other_part.attach_points.iter().enumerate() {
-                let other_ap_world = other_world + other_ap;
+            for (other_i, other_ap) in other_part.attach_points.iter().enumerate() {
+                let parent_point_used = attached
+                    .iter()
+                    .any(|a| a.parent == other_entity && a.parent_point == other_i);
+
+                let child_point_used = attached
+                    .get(other_entity)
+                    .is_ok_and(|a| a.child_point == other_i);
+
+                if parent_point_used || child_point_used {
+                    continue;
+                }
+
+                if own_normal.dot(other_ap.normal) > -0.9 {
+                    continue;
+                }
+
+                let other_ap_world = other_world + other_ap.position;
                 let dist = own_world.distance(other_ap_world);
 
                 if dist < SNAP_RADIUS && best.is_none_or(|(d, ..)| dist < d) {
                     let snapped_root = other_ap_world - *local;
 
                     let own_part = parts.get(*own_entity).unwrap().1;
-                    let local_offset = other_ap - own_part.attach_points[*own_i];
+                    let local_offset = other_ap.position - own_part.attach_points[*own_i].position;
 
                     best = Some((
                         dist,
@@ -316,7 +340,16 @@ fn spawn_part(
                 radius: 1.0,
             },
             RocketPart {
-                attach_points: vec![Vec3::new(0.0, 2.5, 0.0), Vec3::new(0.0, -2.5, 0.0)],
+                attach_points: vec![
+                    AttachPoint {
+                        position: Vec3::new(0.0, 2.5, 0.0),
+                        normal: Vec3::Y,
+                    },
+                    AttachPoint {
+                        position: Vec3::new(0.0, -2.5, 0.0),
+                        normal: -Vec3::Y,
+                    },
+                ],
             },
             Name::new("Fuel Tank"),
             Mesh3d(meshes.add(Cylinder::new(1.0, 5.0))),
@@ -504,8 +537,14 @@ pub fn update_tank(
         }
 
         rocket_part.attach_points = vec![
-            Vec3::new(0.0, tank.height / 2.0, 0.0),
-            Vec3::new(0.0, -tank.height / 2.0, 0.0),
+            AttachPoint {
+                position: Vec3::new(0.0, tank.height / 2.0, 0.0),
+                normal: Vec3::Y,
+            },
+            AttachPoint {
+                position: Vec3::new(0.0, -tank.height / 2.0, 0.0),
+                normal: -Vec3::Y,
+            },
         ];
     }
 
@@ -526,10 +565,10 @@ pub fn update_tank(
                 continue;
             };
 
-            let parent_pos = parent_points[attached_data.parent_point];
+            let parent_pos = parent_points[attached_data.parent_point].position;
 
             let final_pos = if let Ok(child_part) = tank_params.p1().get(child) {
-                parent_pos - child_part.attach_points[attached_data.child_point]
+                parent_pos - child_part.attach_points[attached_data.child_point].position
             } else {
                 parent_pos
             };
