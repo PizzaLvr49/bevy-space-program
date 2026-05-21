@@ -1,7 +1,6 @@
 mod assembly;
 mod editor_camera;
 mod log;
-mod math;
 
 use avian3d::prelude::*;
 use bevy::{

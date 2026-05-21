@@ -1,25 +1,3 @@
-[workspace]
-resolver = "3"
-
-[workspace.dependencies]
-avian3d = { version = "0.6.1", features = [
-    "parry-f64",
-    "3d",
-    "xpbd_joints",
-    "parallel",
-    "debug-plugin",
-], default-features = false }
-bevy = { version = "0.18.1", features = ["3d", "ui"], default-features = false }
-bevy-steamworks = "0.16.0"
-big_space = { version = "0.12.0", features = ["i64", "debug"] }
-chrono = "0.4.44"
-flate2 = "1.1.9"
-semver = "1.0.28"
-tracing-appender = "0.2.4"
-tracing = { version = "*", features = ["max_level_debug"] }
-log = { version = "*", features = ["max_level_debug"] }
-slotmap = "1.1.1"
-
 [profile.release]
 opt-level = 3
 debug = false
@@ -37,17 +15,22 @@ edition = "2024"
 version = "0.1.0"
 
 [dependencies]
-avian3d.workspace = true
-bevy.workspace = true
-bevy-steamworks.workspace = true
-big_space.workspace = true
-chrono.workspace = true
-flate2.workspace = true
-semver.workspace = true
-tracing-appender.workspace = true
-tracing.workspace = true
-log.workspace = true
-slotmap.workspace = true
+avian3d = { version = "0.6.1", features = [
+    "parry-f64",
+    "3d",
+    "xpbd_joints",
+    "parallel",
+    "debug-plugin",
+], default-features = false }
+bevy = { version = "0.18.1", features = ["3d", "ui"], default-features = false }
+bevy-steamworks = "0.16.0"
+big_space = { version = "0.12.0", features = ["i64", "debug"] }
+chrono = "0.4.44"
+flate2 = "1.1.9"
+semver = "1.0.28"
+tracing-appender = "0.2.5"
+tracing = { version = "*", features = ["max_level_debug"] }
+log = { version = "*", features = ["max_level_debug"] }
 bevy_egui = "0.39.1"
 
 [lints.clippy]
